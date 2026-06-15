@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { submitBooking } from '../api/mockApi';
+import React, { useState, useEffect } from 'react';
+import { submitBooking, fetchFeaturedRoomsAPI } from '../api/apiService';
+import toast from 'react-hot-toast';
+import SuccessModal from './SuccessModal';
 
 export default function RoomBooking() {
   const [formData, setFormData] = useState({
@@ -14,10 +16,40 @@ export default function RoomBooking() {
     phone: '',
     notes: ''
   });
+  const [availableRooms, setAvailableRooms] = useState({ 'Iligan City': [], 'Maramag': [], 'Tubod': [] });
+  const [successData, setSuccessData] = useState(null);
 
+  useEffect(() => {
+    const loadRooms = async () => {
+      const { data } = await fetchFeaturedRoomsAPI();
+      if (data) {
+        setAvailableRooms(data);
+      }
+    };
+    loadRooms();
+  }, []);
+
+  const getRoomOptions = () => {
+    if (formData.dtcOffice) {
+      const locKey = formData.dtcOffice.split(',')[0];
+      return availableRooms[locKey] || [];
+    }
+    
+    // If no location selected, show all unique rooms across all locations
+    const allRooms = [];
+    Object.values(availableRooms).forEach(rooms => {
+      rooms.forEach(r => allRooms.push(r.title));
+    });
+    const uniqueRooms = Array.from(new Set(allRooms));
+    return uniqueRooms.map(title => ({ title }));
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    setFormData(prev => ({ ...prev, requestLetterFile: e.target.files[0] }));
   };
 
   const handleRoomSubmit = async (e) => {
@@ -25,12 +57,12 @@ export default function RoomBooking() {
     try {
       const result = await submitBooking({ ...formData, type: 'room' });
       if (result.success) {
-        alert('Booking submitted successfully! Booking ID: ' + result.bookingId);
+        setSuccessData({ id: result.bookingId, type: 'Room' });
       } else {
-        alert('Error: ' + result.error);
+        toast.error('Error: ' + result.error);
       }
     } catch (error) {
-      alert('Error submitting booking');
+      toast.error('Error submitting booking');
     }
   };
 
@@ -51,10 +83,9 @@ export default function RoomBooking() {
             <label className="form-label">Room Type</label>
             <select name="roomType" className="form-control" onChange={handleChange} required value={formData.roomType}>
               <option value="">Select a Room</option>
-              <option value="Conference Room">Conference Room</option>
-              <option value="Collaboration Room I">Collaboration Room I</option>
-              <option value="Collaboration Room II">Collaboration Room II</option>
-              <option value="Training Center">Training Center</option>
+              {getRoomOptions().map((room, idx) => (
+                <option key={idx} value={room.title}>{room.title}</option>
+              ))}
             </select>
           </div>
           <div className="form-group-inline" style={{ flex: 1.5 }}>
@@ -97,7 +128,7 @@ export default function RoomBooking() {
         </div>
         <div className="form-group col-span-2">
           <label className="form-label">Attach Request Letter</label>
-          <input type="file" name="requestLetter" className="form-control" accept=".pdf,image/png,image/jpeg,image/jpg" />
+          <input type="file" name="requestLetter" className="form-control" accept=".pdf" onChange={handleFileChange} />
         </div>
       </div>
     </form>

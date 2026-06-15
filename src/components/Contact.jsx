@@ -1,9 +1,10 @@
 import React from 'react';
+import toast from 'react-hot-toast';
 
 export default function Contact() {
   const handleContactSubmit = (e) => {
     e.preventDefault();
-    alert('Message sent successfully!');
+    toast.success('Message sent successfully!');
   };
 
   return (

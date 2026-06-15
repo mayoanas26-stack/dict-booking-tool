@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import logoWhite from '../assets/logo-white.png';
+import logoColor from '../assets/logo-color.png';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [logoSrc, setLogoSrc] = useState('https://lh3.googleusercontent.com/d/1isMJ7a0KIzvYdULsJ5mNJLcHb25KBkbK');
+  const [logoSrc, setLogoSrc] = useState(logoWhite);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,12 +20,12 @@ export default function Navbar() {
   }, []);
 
   const handleMouseOver = () => {
-    setLogoSrc('https://lh3.googleusercontent.com/d/1MdTXBsrssyssWya97x8O2uVR2e3JAGU9');
+    setLogoSrc(logoColor);
   };
 
   const handleMouseOut = () => {
     if (!scrolled) {
-      setLogoSrc('https://lh3.googleusercontent.com/d/1isMJ7a0KIzvYdULsJ5mNJLcHb25KBkbK');
+      setLogoSrc(logoWhite);
     }
   };
 
@@ -38,7 +40,7 @@ export default function Navbar() {
           <span className="logo-icon">
             <img 
               id="header-logo" 
-              src={scrolled ? 'https://lh3.googleusercontent.com/d/1MdTXBsrssyssWya97x8O2uVR2e3JAGU9' : logoSrc}
+              src={scrolled ? logoColor : logoSrc}
               alt="DICT Logo" 
               style={{ width: '45px', height: 'auto', verticalAlign: 'middle', transition: 'all 0.3s ease', cursor: 'pointer' }}
             />
@@ -50,7 +52,7 @@ export default function Navbar() {
         </Link>
         <div className="nav-links">
           <div className="nav-item">
-            <span onClick={() => { if(window.location.hash !== '#/') window.location.hash='#/'; setTimeout(()=>document.getElementById('home')?.scrollIntoView({behavior:'smooth'}), 100); }} className="nav-link" style={{cursor: 'pointer'}}>Book</span>
+            <span onClick={() => { if(window.location.hash !== '#/') window.location.hash='#/'; setTimeout(()=>document.getElementById('home')?.scrollIntoView({behavior:'smooth'}), 100); }} className="nav-link" style={{cursor: 'pointer'}}>Home</span>
           </div>
           <div className="nav-item">
             <span onClick={() => { if(window.location.hash !== '#/') window.location.hash='#/'; setTimeout(()=>document.getElementById('rooms')?.scrollIntoView({behavior:'smooth'}), 100); }} className="nav-link" style={{cursor: 'pointer'}}>Rooms</span>
@@ -59,7 +61,7 @@ export default function Navbar() {
             <Link to="/manage" className="nav-link">Manage</Link>
           </div>
           <div className="nav-item">
-            <span onClick={() => { if(window.location.hash !== '#/') window.location.hash='#/'; setTimeout(()=>document.getElementById('contact')?.scrollIntoView({behavior:'smooth'}), 100); }} className="nav-link" style={{cursor: 'pointer'}}>Support</span>
+            <Link to="/contact" className="nav-link">Support</Link>
           </div>
           <div className="nav-item">
             <span onClick={() => { if(window.location.hash !== '#/') window.location.hash='#/'; setTimeout(()=>document.getElementById('about')?.scrollIntoView({behavior:'smooth'}), 100); }} className="nav-link" style={{cursor: 'pointer'}}>About</span>

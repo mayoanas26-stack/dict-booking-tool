@@ -1,32 +1,25 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { fetchHighlightsAPI } from '../api/apiService';
 
 export default function Highlights() {
   const scrollRef = useRef(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(true);
+  const [highlights, setHighlights] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const highlights = [
-    {
-      img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=400&q=80',
-      month: 'OCT', day: '15', title: 'Regional Assembly 2026', link: '#'
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=400&q=80',
-      month: 'NOV', day: '02', title: 'Tech Summit & Expo', link: '#'
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=400&q=80',
-      month: 'DEC', day: '10', title: 'Year-End Conference', link: '#'
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=400&q=80',
-      month: 'JAN', day: '25', title: 'Innovation Workshop', link: '#'
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=400&q=80',
-      month: 'FEB', day: '14', title: 'Networking Meetup', link: '#'
+  useEffect(() => {
+    fetchHighlights();
+  }, []);
+
+  const fetchHighlights = async () => {
+    setIsLoading(true);
+    const { data, error } = await fetchHighlightsAPI();
+    if (!error && data) {
+      setHighlights(data);
     }
-  ];
+    setIsLoading(false);
+  };
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
@@ -43,7 +36,6 @@ export default function Highlights() {
     }
   };
 
-  // Run initial check once mounted in case content doesn't overflow
   useEffect(() => {
     handleScroll();
     window.addEventListener('resize', handleScroll);
@@ -99,24 +91,49 @@ export default function Highlights() {
               scrollSnapType: 'x mandatory'
             }}
           >
-            {/* CSS to hide webkit scrollbar inline for simplicity */}
-            <style>{`.highlights-grid::-webkit-scrollbar { display: none; } .highlight-card { scroll-snap-align: start; }`}</style>
+            <style>{`
+              .highlights-grid::-webkit-scrollbar { display: none; } 
+              .highlight-card { scroll-snap-align: start; }
+              @keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+              .skeleton-box { background-color: #e2e8f0; border-radius: 4px; }
+            `}</style>
             
-            {highlights.map((h, i) => (
-              <div className="highlight-card" key={i}>
-                <div className="highlight-image" style={{ backgroundImage: `url('${h.img}')` }}></div>
-                <div className="highlight-content">
-                  <div className="highlight-date">
-                    <span className="month">{h.month}</span>
-                    <span className="day">{h.day}</span>
-                  </div>
-                  <div className="highlight-text">
-                    <h3>{h.title}</h3>
-                    <a href={h.link} className="read-more" target="_blank" rel="noreferrer">Read More</a>
+            {isLoading ? (
+              [1, 2, 3, 4].map((n) => (
+                <div className="highlight-card" key={`skel-${n}`} style={{ animation: 'skeleton-pulse 1.5s infinite', border: '1px solid #e2e8f0', background: 'white' }}>
+                  <div className="highlight-image skeleton-box" style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}></div>
+                  <div className="highlight-content" style={{ display: 'flex', gap: '15px' }}>
+                    <div className="highlight-date" style={{ background: 'transparent', border: 'none', padding: 0 }}>
+                      <div className="skeleton-box" style={{ height: '16px', width: '30px', marginBottom: '8px' }}></div>
+                      <div className="skeleton-box" style={{ height: '24px', width: '30px' }}></div>
+                    </div>
+                    <div className="highlight-text" style={{ flex: 1, padding: '10px 0' }}>
+                      <div className="skeleton-box" style={{ height: '20px', width: '90%', marginBottom: '10px' }}></div>
+                      <div className="skeleton-box" style={{ height: '20px', width: '60%', marginBottom: '20px' }}></div>
+                      <div className="skeleton-box" style={{ height: '16px', width: '80px', borderRadius: '20px' }}></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : highlights.length > 0 ? (
+              highlights.map((h, i) => (
+                <div className="highlight-card" key={i}>
+                  <div className="highlight-image" style={{ backgroundImage: `url('${h.image_url}')` }}></div>
+                  <div className="highlight-content">
+                    <div className="highlight-date">
+                      <span className="month">{h.month}</span>
+                      <span className="day">{h.day}</span>
+                    </div>
+                    <div className="highlight-text">
+                      <h3>{h.title}</h3>
+                      <a href={h.link_url?.startsWith('http') ? h.link_url : '#'} className="read-more" target="_blank" rel="noreferrer">Read More</a>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p style={{ padding: '20px' }}>No highlights available right now.</p>
+            )}
           </div>
           <div className="fade-overlay left" style={{ opacity: showLeftFade ? 1 : 0, transition: 'opacity 0.3s' }}></div>
           <div className="fade-overlay right" style={{ opacity: showRightFade ? 1 : 0, transition: 'opacity 0.3s' }}></div>

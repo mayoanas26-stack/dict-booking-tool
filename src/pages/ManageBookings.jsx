@@ -1,69 +1,142 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { searchBookingsAPI } from '../api/apiService';
+import toast from 'react-hot-toast';
 
 export default function ManageBookings() {
   const [searchQuery, setSearchQuery] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Mock data for search results
-  const [bookings, setBookings] = useState([
-    {
-      id: 'BK-10492',
-      eventName: 'Project Launch',
-      location: 'Iligan City',
-      type: 'Conference Room',
-      date: '2026-06-20',
-      status: 'Confirmed'
-    },
-    {
-      id: 'SB-88391',
-      eventName: 'Remote Setup',
-      location: 'Maramag',
-      type: 'Starlink Internet',
-      date: '2026-06-25',
-      status: 'Pending'
-    }
-  ]);
+  const [bookings, setBookings] = useState([]);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    setIsLoading(true);
     setHasSearched(true);
-    // In a real app, this would fetch from the API using searchQuery
+    
+    const { data, error } = await searchBookingsAPI(searchQuery.trim());
+    
+    if (error) {
+      toast.error('Search failed: ' + error);
+      setBookings([]);
+    } else {
+      setBookings(data || []);
+      if (data.length === 0) toast('No bookings found for that details.', { icon: 'ℹ️' });
+    }
+    
+    setIsLoading(false);
   };
 
   return (
     <>
       <Navbar />
-      <main style={{ paddingTop: '100px', minHeight: '80vh', backgroundColor: 'var(--bg-light)' }}>
+      <main style={{ minHeight: '80vh', backgroundColor: 'var(--bg-light)' }}>
         {/* Header Section */}
-        <div style={{ backgroundColor: 'var(--dict-blue)', padding: '60px 0 40px', color: 'white', textAlign: 'center' }}>
+        <div style={{ backgroundColor: 'var(--dict-blue)', padding: '160px 0 80px', color: 'white', textAlign: 'center' }}>
           <div className="container">
             <h1 style={{ color: 'white', fontSize: '2.5rem', marginBottom: '10px' }}>Manage Your Bookings</h1>
             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
-              Enter your Booking ID or Email Address to view, update, or cancel your reservations for Rooms and Starlink Internet.
+              Enter your Email Address or Phone Number to view your reservations for Rooms and Starlink Internet.
             </p>
           </div>
         </div>
 
         {/* Search Widget */}
-        <div className="container" style={{ marginTop: '-30px', position: 'relative', zIndex: 10 }}>
-          <div style={{ background: 'white', padding: '30px', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-lg)', maxWidth: '800px', margin: '0 auto' }}>
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '15px' }}>
+        <div className="container" style={{ marginTop: '-35px', position: 'relative', zIndex: 10 }}>
+          <form 
+            onSubmit={handleSearch} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              background: 'white', 
+              padding: '10px 10px 10px 25px', 
+              borderRadius: '50px', 
+              boxShadow: '0 10px 30px rgba(0,0,0,0.1)', 
+              maxWidth: '750px', 
+              margin: '0 auto',
+              border: '1px solid #f1f5f9'
+            }}
+          >
+            <div style={{ marginRight: '15px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            
+            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
               <input 
                 type="text" 
-                className="form-control" 
-                placeholder="Enter Booking ID (e.g., BK-10492) or Email" 
+                placeholder="Enter Email Address or Phone Number" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 required
-                style={{ flex: 1, padding: '15px', fontSize: '1rem' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '15px 0', 
+                  paddingRight: '50px', 
+                  fontSize: '1.05rem', 
+                  border: 'none', 
+                  outline: 'none', 
+                  background: 'transparent',
+                  color: 'var(--navy-dark)',
+                  fontWeight: 500
+                }}
               />
-              <button type="submit" className="btn btn-primary" style={{ padding: '0 30px' }}>
-                Search
-              </button>
-            </form>
-          </div>
+              {searchQuery.length > 0 && (
+                <button 
+                  type="button" 
+                  onClick={() => { setSearchQuery(''); setBookings([]); setHasSearched(false); }} 
+                  style={{ 
+                    position: 'absolute', 
+                    right: '15px', 
+                    background: 'rgba(0,0,0,0.05)', 
+                    borderRadius: '50%',
+                    width: '24px',
+                    height: '24px',
+                    border: 'none', 
+                    color: '#64748b', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.1)'; e.currentTarget.style.color = 'var(--dict-blue)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#64748b'; }}
+                  title="Clear search"
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="3" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+              )}
+            </div>
+            
+            <button 
+              type="submit" 
+              style={{ 
+                padding: '16px 40px', 
+                borderRadius: '40px', 
+                background: 'var(--dict-blue)', 
+                color: 'white', 
+                fontWeight: 600, 
+                fontSize: '1.05rem',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(0, 59, 140, 0.3)',
+                transition: 'all 0.3s',
+                marginLeft: '10px'
+              }} 
+              disabled={isLoading}
+              onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 59, 140, 0.4)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 59, 140, 0.3)'; }}
+            >
+              {isLoading ? 'Searching...' : 'Search'}
+            </button>
+          </form>
         </div>
 
         {/* Results Section */}
@@ -95,17 +168,14 @@ export default function ManageBookings() {
                         </p>
                       </div>
                       <div style={{ display: 'flex', gap: '10px' }}>
-                        <button className="btn btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>View Details</button>
-                        {booking.status === 'Pending' && (
-                          <button className="btn btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem', color: '#e74c3c', borderColor: '#e74c3c' }}>Cancel</button>
-                        )}
+                        <button onClick={() => toast('For cancellations or updates, please contact the DTC Admin.')} className="btn btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>Contact Admin</button>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: 'var(--radius)' }}>
-                  <p style={{ color: 'var(--text-muted)' }}>No bookings found for "{searchQuery}". Please verify your Booking ID or Email.</p>
+                  <p style={{ color: 'var(--text-muted)' }}>No bookings found for "{searchQuery}". Please verify your details.</p>
                 </div>
               )}
             </div>

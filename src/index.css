@@ -2826,3 +2826,131 @@ header .dict-text-wrapper {
 .navbar:hover .dict-text-wrapper {
     color: var(--dict-blue);
 }
+
+/* ==========================================================================
+   Premium Calendar Overrides (High-Level Design)
+   ========================================================================== */
+.premium-calendar-wrapper {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Header Typography */
+.fc .fc-toolbar-title {
+    font-weight: 800;
+    color: var(--navy-dark);
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
+}
+
+/* Header Buttons */
+.fc .fc-button-primary {
+    background: var(--bg-light);
+    border: none;
+    color: var(--navy-dark);
+    font-weight: 600;
+    border-radius: 10px;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+    text-transform: capitalize;
+}
+
+.fc .fc-button-primary:hover {
+    background: #e2e8f0;
+    color: var(--dict-blue);
+}
+
+.fc .fc-button-primary:disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
+.fc .fc-button-active {
+    background: var(--dict-blue) !important;
+    color: #ffffff !important;
+}
+
+/* Grid Lines */
+.fc-theme-standard td, .fc-theme-standard th {
+    border-color: #f1f5f9;
+}
+.fc-theme-standard .fc-scrollgrid {
+    border: none;
+}
+
+/* Day Headers */
+.fc-col-header-cell-cushion {
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 12px 0 !important;
+}
+
+/* Today Cell */
+.fc .fc-day-today {
+    background: rgba(0, 59, 140, 0.02) !important;
+}
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    background: var(--dict-blue);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 4px;
+}
+
+/* Event Chips */
+.fc-h-event, .fc-v-event, .fc-event {
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 2px 6px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.fc-event-title {
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   Segmented Control (Room vs Starlink Tabs)
+   ========================================================================== */
+.segmented-control {
+    display: inline-flex;
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 4px;
+    position: relative;
+}
+
+.segment-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 24px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #64748b;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.segment-btn:hover {
+    color: var(--navy-dark);
+}
+
+.segment-btn.active {
+    background: #ffffff;
+    color: var(--dict-blue);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { submitBooking } from '../api/mockApi';
+import { submitBooking } from '../api/apiService';
+import toast from 'react-hot-toast';
+import SuccessModal from './SuccessModal';
 
 export default function StarlinkBooking() {
   const [formData, setFormData] = useState({
@@ -10,12 +12,18 @@ export default function StarlinkBooking() {
     fullName: '',
     email: '',
     phone: '',
-    notes: ''
+    notes: '',
+    requestLetterFile: null
   });
+  const [successData, setSuccessData] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    setFormData(prev => ({ ...prev, requestLetterFile: e.target.files[0] }));
   };
 
   const handleStarlinkSubmit = async (e) => {
@@ -23,12 +31,12 @@ export default function StarlinkBooking() {
     try {
       const result = await submitBooking({ ...formData, type: 'starlink' });
       if (result.success) {
-        alert('Booking submitted successfully! Booking ID: ' + result.bookingId);
+        setSuccessData({ id: result.bookingId, type: 'Starlink' });
       } else {
-        alert('Error: ' + result.error);
+        toast.error('Error: ' + result.error);
       }
     } catch (error) {
-      alert('Error submitting booking');
+      toast.error('Error submitting booking');
     }
   };
 
@@ -82,9 +90,16 @@ export default function StarlinkBooking() {
 
         <div className="form-group col-span-2">
           <label className="form-label">Attach Request Letter</label>
-          <input type="file" name="requestLetter" className="form-control" accept=".pdf,.doc,.docx" />
+          <input type="file" name="requestLetter" className="form-control" accept=".pdf" onChange={handleFileChange} />
         </div>
       </div>
+
+      <SuccessModal 
+        isOpen={!!successData} 
+        onClose={() => setSuccessData(null)} 
+        type={successData?.type} 
+        bookingId={successData?.id} 
+      />
     </form>
   );
 }

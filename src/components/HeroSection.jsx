@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import BookingWidget from './BookingWidget';
+import heroEvent from '../assets/hero-event.jpg';
 
 export default function HeroSection() {
   const [activeSlide, setActiveSlide] = useState(0);
   const slides = [
-    'https://lh3.googleusercontent.com/d/16GQ8YBv3iGozDWYi3i6R-RVu_1-aXESc',
+    heroEvent,
     'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80',
     'https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&w=1920&q=80',
     'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80'
